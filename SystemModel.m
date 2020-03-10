@@ -18,19 +18,30 @@ d_den = [1 1 1];
 disturb = tf(d_num,d_den); %disturbance transfer function
 
 %% Input Magnitudes
-open_in = 1; %step input value for open loop response
-dist_in = 2; %N, disturbance force
+open_vec = [1 0 1 2]; %step input value for open loop response
+dist_vec = [0 1 2 4]; %N, disturbance force
 
 min = -0.5; %m, minimum cylinder distance from relative center
 max = 0.5; %m, maximum cylinder distance from relative center
 typ = 0; %m, typical desired cylinder position at origin
 
 %% Open Loop System Response
-load_system('openloop')
-simOut = sim('openloop');
-y = simOut.get('ScopeData');
+ystore = [];
+for i = 1:length(open_vec)
+    open_in = open_vec(i);
+    dist_in = dist_vec(i);
+    load_system('openloop')
+    simOut = sim('openloop');
+    y = simOut.get('ScopeData');
+    ystore = [ystore y];
+end
+
 figure
-plot(y(:,1),y(:,2))
+hold on
+plot(ystore(:,1),ystore(:,2))
+plot(ystore(:,3),ystore(:,4))
+plot(ystore(:,5),ystore(:,6))
+plot(ystore(:,7),ystore(:,8))
 ylabel('Output Value')
 xlabel('Time (s)')
 title('Open Loop System Response')
