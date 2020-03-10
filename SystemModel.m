@@ -45,4 +45,5 @@ plot(ystore(:,7),ystore(:,8))
 ylabel('Output Value')
 xlabel('Time (s)')
 title('Open Loop System Response')
+legend('Step = 1, Disturbance = 0','Step = 0, Disturbance = 1', 'Step = 1, Disturbance = 2','Step = 2, Disturbance = 4')
 
