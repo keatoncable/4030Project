@@ -2,24 +2,24 @@ clear
 clc
 close all
 
+%% Constant Initialization
+ts = 0.2; %impulse duration in seconds
+tau = 1; %delay in seconds
+
 %% Plant Model
-m_num = [1 1];
-m_den = [1 1 1];
-motor = tf(m_num,m_den); %motor transfer function
+t_num = [tau];
+t_den = [1 tau];
+timedelay = tf(t_num,t_den); %motor transfer function
 p_num = [1 1];
 p_den = [1 1 1];
 plant = tf(p_num,p_den); %treadmill and cylinder function
-k = 1; %controller gain
-g_num = [1 1];
-g_den = [1 1 1];
-gain = k*tf(g_num,g_den); %controller gain for lead\lag
 d_num = [1 1];
 d_den = [1 1 1];
 disturb = tf(d_num,d_den); %disturbance transfer function
 
 %% Input Magnitudes
-open_vec = [1 0 1 2]; %step input value for open loop response
-dist_vec = [0 1 2 4]; %N, disturbance force
+open_vec = [24 0 1 2]; %step input value for open loop response
+dist_vec = [0 10 2 4]; %N, disturbance force
 
 min = -0.5; %m, minimum cylinder distance from relative center
 max = 0.5; %m, maximum cylinder distance from relative center
