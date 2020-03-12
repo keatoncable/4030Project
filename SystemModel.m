@@ -43,7 +43,7 @@ plot(ystore{6}(:,1),ystore{6}(:,2))
 ylabel('Cylinder Position')
 xlabel('Time (s)')
 title('Open Loop System Response')
-legend('Step = 1, Disturbance = 0','Step = 0, Disturbance = 1', 'Step = 1, Disturbance = 2','Step = 2, Disturbance = 4')
+legend('V = 24, Fd = 0','V = 0, Fd = 10', 'V = 12, Fd = 10','V = 24, Fd = 20','V = 12, Fd = -10','V = 24, Fd = -20')
 
 for i = 1:length(ystore)
     figure
