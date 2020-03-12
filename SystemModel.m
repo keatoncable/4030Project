@@ -32,7 +32,7 @@ for i = 1:length(volt_vec)
     ystore = [ystore y];
 end
 
-figure
+fig1 = figure;
 hold on
 plot(ystore{1}(:,1),ystore{1}(:,2))
 plot(ystore{2}(:,1),ystore{2}(:,2))
@@ -44,13 +44,16 @@ ylabel('Cylinder Position')
 xlabel('Time (s)')
 title('Open Loop System Response')
 legend('V = 24, Fd = 0','V = 0, Fd = 10', 'V = 12, Fd = 10','V = 24, Fd = 20','V = 12, Fd = -10','V = 24, Fd = -20')
+saveas(fig1,'Open Loop System Respone.jpg')
 
 for i = 1:length(ystore)
-    figure
+    fig = figure;
     plot(ystore{i}(:,1),ystore{i}(:,2))
     ylabel('Cylinder Position')
     xlabel('Time (s)')
-    tstr = sprintf('Voltage = %.0f V, Disturbance = %.0f N',volt_vec(i),fd_vec(i));
+    tstr = sprintf('Voltage = %.0f V, Fd = %.0f N',volt_vec(i),fd_vec(i));
+    sstr = sprintf('V%.0f__Fd%.0f.jpg',volt_vec(i),fd_vec(i));
     title(tstr)
+    saveas(fig,sstr)
 end
 
