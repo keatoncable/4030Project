@@ -45,3 +45,12 @@ xlabel('Time (s)')
 title('Open Loop System Response')
 legend('Step = 1, Disturbance = 0','Step = 0, Disturbance = 1', 'Step = 1, Disturbance = 2','Step = 2, Disturbance = 4')
 
+for i = 1:length(ystore)
+    figure
+    plot(ystore{i}(:,1),ystore{i}(:,2))
+    ylabel('Cylinder Position')
+    xlabel('Time (s)')
+    tstr = sprintf('Voltage = %.0f V, Disturbance = %.0f N',volt_vec(i),fd_vec(i));
+    title(tstr)
+end
+
