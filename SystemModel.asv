@@ -222,11 +222,12 @@ end
 
 %% Real life
 actual = {};
-load_system('realsim')
+load_system('openloop')
 
     volt = 12;
     fd = fd_vec(4);
-    simOut = sim('realsim');
+    time = dist_time(2);
+    simOut = sim('openloop');
     y = simOut.get('ScopeData');
     actual = [actual y];
 
@@ -234,9 +235,11 @@ load_system('realsim')
 fig1 = figure;
 hold on
 plot(actual{1}(:,1),actual{1}(:,2))
+plot(ystore{2}(:,1),ystore{2}(:,2))
+plot(ystore{3}(:,1),ystore{3}(:,2))
+plot(ystore{4}(:,1),ystore{4}(:,2))
 ylabel('Motor Angular Velocity [rad/s]')
 xlabel('Time (s)')
-title('Simulated Real Jogging Response')
-ylim([60 70])
-%legend('V = 0','V = 12', 'V = 24','V = 48')
-saveas(fig1,'realsim.jpg')
+title('Open Loop System Response - Disturbance at 30s')
+legend('V = 0','V = 12', 'V = 24','V = 48')
+saveas(fig1,'D30s_Open Loop System Respone.jpg')
