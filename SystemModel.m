@@ -5,7 +5,7 @@ close all
 %% Constant Initialization
 dt = 0.2; %impulse duration in seconds
 tau = 2; %delay in seconds
-dist_time = [10 35];
+dist_time = [10 25];
 
 r = 0.0635; %radius of rollers
 kt = 0.15556; %motor constant
