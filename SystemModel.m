@@ -31,11 +31,19 @@ disturb = tf(d_num,d_den); %disturbance transfer function
 %% Input Magnitudes
 volt_vec = [0 12 24 48]; %step input value for open loop response
 
-theta = 0; %treadmill incline
+theta1 = 0; %min treadmill incline
+theta2 = 45; %max treadmill incline
 mass = [0 -50 -70 -90 -110]; %person weight in kg
 mu = 0.4; %coefficient of friction
 g = 9.81;
-fd_vec = mu*g*cosd(theta).*mass; %N, disturbance force
+fd_vec = mu*g*cosd(theta1)*r.*mass; %N, disturbance force
+fd_vec2 = mu*g*cosd(theta2)*r.*mass; %N, disturbance force
+
+mtable = {'Person Mass [kg]' 'Disturbance [N], $\theta=45^\circ$'  'Disturbance [N], $\theta=45^\circ$';
+            -mass(2) -fd_vec(2) -fd_vec2(2);
+            -mass(3) -fd_vec(3) -fd_vec2(3);
+            -mass(4) -fd_vec(4) -fd_vec2(4);
+            -mass(5) -fd_vec(5) -fd_vec2(5);}
 
 %% Open Loop No Disturbance
 nodist = {};
@@ -211,3 +219,24 @@ for i = 1:length(ystore)
     title(tstr)
     saveas(fig,sstr)
 end
+
+%% Real life
+actual = {};
+load_system('openloop')
+
+    volt = 12;
+    fd = fd_vec(4);
+    time = 15:1:30;
+    simOut = sim('openloop');
+    y = simOut.get('ScopeData');
+    actual = [actual y];
+
+
+fig1 = figure;
+hold on
+plot(actual{1}(:,1),actual{1}(:,2))
+ylabel('Motor Angular Velocity [rad/s]')
+xlabel('Time (s)')
+title('Simulated Real Jogging Response')
+%legend('V = 0','V = 12', 'V = 24','V = 48')
+%saveas(fig1,'D30s_Open Loop System Respone.jpg')
