@@ -240,3 +240,100 @@ title('Simulated Real Jogging Response')
 ylim([60 70])
 %legend('V = 0','V = 12', 'V = 24','V = 48')
 saveas(fig1,'realsim.jpg')
+
+%% Lead/Lag - Root Locus
+sys = timedelay*plant;
+rlocus(sys)
+
+t = 0.3111;
+a= 0.001404;
+b= 0.09233;
+c= 0.2121;
+d= 0.56;
+p = -b/(3*a);
+q = p^3+(b*c-3*a*d)/(6*a^2);
+r = c/(3*a);
+x = (q+(q^2+(r-p^2)^3)^(1/2))^(1/3) + (q-(q^2+(r-p^2)^3)^(1/2))^(1/3) + p;
+
+p = pole(sys);
+re_target = -1.31;
+im_target = 1.16;
+
+a_choice = 10;
+zero = [-a_choice];
+poles = [p' re_target];
+lenz = length(zero);
+lenp = length(poles);
+phi = [];
+tri = [];
+
+for i = 1:lenz
+    if zero(i)>re_target
+        dist = abs(re_target-zero(i));
+        tricalc = 180-atand(dist/im_target);
+        tri = [tri tricalc];
+    else
+        dist = abs(zero(i)-re_target);
+        tricalc = atand(dist/im_target);
+        tri = [tri tricalc];
+    end
+end
+
+for i = 1:lenp-1
+    if poles(i)>re_target
+        dist = abs(re_target-poles(i));
+        phicalc = 180-atand(dist/im_target);
+        phi = [phi phicalc];
+    else
+        dist = abs(poles(i)-re_target);
+        phicalc = atand(dist/im_target);
+        phi = [phi phicalc];
+    end
+end
+
+syms x
+b_angle = double(solve(sum(tri)-sum(phi)-x==180,x))
+b_mod = mod(b_angle,360)
+b_pole = im_target/tand(b_mod)+abs(re_target)
+
+s = complex(re_target,im_target)
+lead_num = [1 a_choice];
+lead_den = [1 b_pole];
+lead = tf(lead_num,lead_den);
+
+syms k
+gain = double(solve(k*abs(((s+a_choice)/(s+b_pole))*((t)/(a*s^3+b*s^2+c*s+d)))==1,k))
+
+rlocus(gain*lead*sys)
+figure
+step(gain*lead*sys,40)
+
+c = 0.116708;
+d = 0.01;
+lag_num = [1 c];
+lag_den = [1 d];
+lag = tf(lag_num,lag_den);
+
+leadlag = gain*lead*lag*sys
+
+leadlag = {};
+load_system('rootlocus')
+for i = 1:length(volt_vec)
+    volt = volt_vec(i);
+    fd = fd_vec(1);
+    time = dist_time(1);
+    simOut = sim('rootlocus');
+    y = simOut.get('LeadLagScope');
+    leadlag = [leadlag y];
+end
+
+fig_ll = figure;
+hold on
+plot(leadlag{1}(:,1),leadlag{1}(:,2))
+plot(leadlag{2}(:,1),leadlag{2}(:,2))
+plot(leadlag{3}(:,1),leadlag{3}(:,2))
+plot(leadlag{4}(:,1),leadlag{4}(:,2))
+ylabel('Motor Angular Velocity [rad/s]')
+xlabel('Time (s)')
+title('Open Loop System Response - No Time Delay')
+legend('V = 0','V = 12', 'V = 24','V = 48')
