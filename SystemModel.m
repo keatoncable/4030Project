@@ -242,9 +242,11 @@ ylim([60 70])
 saveas(fig1,'realsim.jpg')
 
 %% Lead/Lag - Root Locus
+close all
 sys = timedelay*plant;
 figure
 rlocus(sys)
+title('Root Locus, No Compensation')
 
 t = 0.3111;
 a= 0.001404;
@@ -306,9 +308,10 @@ syms k
 gain = double(solve(k*abs(((s+a_choice)/(s+b_pole))*((t)/(a*s^3+b*s^2+c*s+d)))==1,k));
 
 figure
-rlocus(gain*lead*sys);
-figure
-step(gain*lead*sys,40);
+rlocus(gain*lead*sys)
+title('Root Locus, with Compensation')
+%figure
+%step(gain*lead*sys,40);
 
 c = 0.116708;
 d = 0.01;
@@ -318,7 +321,7 @@ lag = tf(lag_num,lag_den);
 
 leadlag = gain*lead*lag*sys;
 
-leadlag = {};
+closto = {};
 load_system('rootlocus')
 for i = 1:length(volt_vec)
     volt = volt_vec(i);
@@ -326,16 +329,90 @@ for i = 1:length(volt_vec)
     time = dist_time(1);
     simOut = sim('rootlocus');
     y = simOut.get('LeadLagScope');
-    leadlag = [leadlag y];
+    closto = [closto y];
 end
 
-fig_ll = figure;
+fig_l1 = figure;
 hold on
-plot(leadlag{1}(:,1),leadlag{1}(:,2))
-plot(leadlag{2}(:,1),leadlag{2}(:,2))
-plot(leadlag{3}(:,1),leadlag{3}(:,2))
-plot(leadlag{4}(:,1),leadlag{4}(:,2))
+%plot(closto{1}(:,1),closto{1}(:,2))
+plot(closto{2}(:,1),closto{2}(:,2))
+plot(closto{3}(:,1),closto{3}(:,2))
+plot(closto{4}(:,1),closto{4}(:,2))
+ylabel('Motor Angular Velocity [rad/s]')
+xlabel('Time (s)')
+title('Closed Loop Response')
+legend('V = 12', 'V = 24','V = 48')
+
+
+cldchange = {};
+load_system('closedloop')
+for i = 1:length(fd_vec)
+    volt = volt_vec(3);
+    fd = fd_vec(i);
+    time = dist_time(1);
+    simOut = sim('closedloop');
+    y = simOut.get('ScopeData1');
+    cldchange = [cldchange y];
+end
+
+fig12 = figure;
+hold on
+%plot(lldchange{1}(:,1),lldchange{1}(:,2))
+plot(cldchange{2}(:,1),cldchange{2}(:,2))
+plot(cldchange{3}(:,1),cldchange{3}(:,2))
+plot(cldchange{4}(:,1),cldchange{4}(:,2))
+plot(cldchange{5}(:,1),cldchange{5}(:,2))
+ylabel('Motor Angular Velocity [rad/s]')
+xlabel('Time (s)')
+title('Closed Loop System Response - Disturbance Mangitude Change')
+legend('Fd = -196 N','Fd = -275 N','Fd = -353 N','Fd = -432 N')
+% saveas(fig1,'Dchange_Open Loop System Respone.jpg')
+
+
+
+leadlagsto = {};
+load_system('rootlocus')
+for i = 1:length(volt_vec)
+    volt = volt_vec(i);
+    fd = fd_vec(1);
+    time = dist_time(1);
+    simOut = sim('rootlocus');
+    y = simOut.get('LeadLagScope');
+    leadlagsto = [leadlagsto y];
+end
+
+fig_l3 = figure;
+hold on
+%plot(leadlagsto{1}(:,1),leadlagsto{1}(:,2))
+plot(leadlagsto{2}(:,1),leadlagsto{2}(:,2))
+plot(leadlagsto{3}(:,1),leadlagsto{3}(:,2))
+plot(leadlagsto{4}(:,1),leadlagsto{4}(:,2))
 ylabel('Motor Angular Velocity [rad/s]')
 xlabel('Time (s)')
 title('Lead-Lag Root Locus Closed Loop Response')
-legend('V = 0','V = 12', 'V = 24','V = 48')
+legend('V = 12', 'V = 24','V = 48')
+
+lldchange = {};
+load_system('rootlocus')
+for i = 1:length(fd_vec)
+    volt = volt_vec(3);
+    fd = fd_vec(i);
+    time = dist_time(1);
+    simOut = sim('rootlocus');
+    y = simOut.get('LeadLagScope');
+    lldchange = [lldchange y];
+end
+
+fig14 = figure;
+hold on
+%plot(lldchange{1}(:,1),lldchange{1}(:,2))
+plot(lldchange{2}(:,1),lldchange{2}(:,2))
+plot(lldchange{3}(:,1),lldchange{3}(:,2))
+plot(lldchange{4}(:,1),lldchange{4}(:,2))
+plot(lldchange{5}(:,1),lldchange{5}(:,2))
+ylabel('Motor Angular Velocity [rad/s]')
+xlabel('Time (s)')
+title('Compensated System Response - Disturbance Mangitude Change')
+legend('Fd = -196 N','Fd = -275 N','Fd = -353 N','Fd = -432 N')
+% saveas(fig1,'Dchange_Open Loop System Respone.jpg')
+
