@@ -243,6 +243,7 @@ saveas(fig1,'realsim.jpg')
 
 %% Lead/Lag - Root Locus
 sys = timedelay*plant;
+figure
 rlocus(sys)
 
 t = 0.3111;
@@ -292,21 +293,22 @@ for i = 1:lenp-1
 end
 
 syms x
-b_angle = double(solve(sum(tri)-sum(phi)-x==180,x))
-b_mod = mod(b_angle,360)
-b_pole = im_target/tand(b_mod)+abs(re_target)
+b_angle = double(solve(sum(tri)-sum(phi)-x==180,x));
+b_mod = mod(b_angle,360);
+b_pole = im_target/tand(b_mod)+abs(re_target);
 
-s = complex(re_target,im_target)
+s = complex(re_target,im_target);
 lead_num = [1 a_choice];
 lead_den = [1 b_pole];
 lead = tf(lead_num,lead_den);
 
 syms k
-gain = double(solve(k*abs(((s+a_choice)/(s+b_pole))*((t)/(a*s^3+b*s^2+c*s+d)))==1,k))
+gain = double(solve(k*abs(((s+a_choice)/(s+b_pole))*((t)/(a*s^3+b*s^2+c*s+d)))==1,k));
 
-rlocus(gain*lead*sys)
 figure
-step(gain*lead*sys,40)
+rlocus(gain*lead*sys);
+figure
+step(gain*lead*sys,40);
 
 c = 0.116708;
 d = 0.01;
@@ -314,7 +316,7 @@ lag_num = [1 c];
 lag_den = [1 d];
 lag = tf(lag_num,lag_den);
 
-leadlag = gain*lead*lag*sys
+leadlag = gain*lead*lag*sys;
 
 leadlag = {};
 load_system('rootlocus')
