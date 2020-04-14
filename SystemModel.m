@@ -256,7 +256,7 @@ t = 0.3111;
 a= 0.001404;
 b= 0.09233;
 c= 0.2121;
-d= 0.56;
+d= 0.056;
 p = -b/(3*a);
 q = p^3+(b*c-3*a*d)/(6*a^2);
 r = c/(3*a);
@@ -311,6 +311,7 @@ lead = tf(lead_num,lead_den);
 syms k
 gain = double(solve(k*abs(((s+a_choice)/(s+b_pole))*((t)/(a*s^3+b*s^2+c*s+d)))==1,k));
 gain=0.59;
+%gain = 1.09;
 
 %figure
 %step(gain*lead*sys,40);
@@ -324,7 +325,7 @@ lag = tf(lag_num,lag_den);
 leadlag = gain*lead*lag*sys;
 
 figure
-rlocus(leadlag)
+rlocus(gain*lead*sys)
 title('Root Locus, with Compensation')
 
 closto = {};
@@ -377,6 +378,7 @@ legend('Fd = -196 N','Fd = -275 N','Fd = -353 N','Fd = -432 N')
 
 
 leadlagsto = {};
+actsto1 = {};
 load_system('rootlocus')
 for i = 1:length(ref_ang)
     ref = ref_ang(i);
@@ -384,10 +386,12 @@ for i = 1:length(ref_ang)
     time = dist_time(1);
     simOut = sim('rootlocus');
     y = simOut.get('LeadLagScope');
+    y2 = simOut.get('VoltScope');
     leadlagsto = [leadlagsto y];
+    actsto1 = [actsto1 y2];
 end
 
-fig_l3 = figure;
+fig_l3 = figure;hhhh
 hold on
 plot(leadlagsto{1}(:,1),leadlagsto{1}(:,2))
 plot(leadlagsto{2}(:,1),leadlagsto{2}(:,2))
@@ -398,7 +402,19 @@ xlabel('Time (s)')
 title('Lead-Lag Root Locus Closed Loop Response')
 legend('Speed = 4 MPH','Speed = 6 MPH','Speed = 8 MPH','Speed = 10 MPH')
 
+fig_l4 = figure;
+hold on
+plot(actsto1{1}(:,1),actsto1{1}(:,2))
+plot(actsto1{2}(:,1),actsto1{2}(:,2))
+plot(actsto1{3}(:,1),actsto1{3}(:,2))
+plot(actsto1{4}(:,1),actsto1{4}(:,2))
+ylabel('Motor Voltage [V]')
+xlabel('Time (s)')
+title('Lead-Lag Controlled Voltage Magnitude - Ref Change')
+legend('Speed = 4 MPH','Speed = 6 MPH','Speed = 8 MPH','Speed = 10 MPH')
+
 lldchange = {};
+actsto2 = {};
 load_system('rootlocus')
 for i = 1:length(fd_vec)
     ref = ref_ang(3);
@@ -407,18 +423,54 @@ for i = 1:length(fd_vec)
     simOut = sim('rootlocus');
     y = simOut.get('LeadLagScope');
     lldchange = [lldchange y];
+    y2 = simOut.get('VoltScope');
+    actsto2 = [actsto2 y2];
 end
 
-fig14 = figure;
+fig15 = figure;
 hold on
 %plot(lldchange{1}(:,1),lldchange{1}(:,2))
 plot(lldchange{2}(:,1),lldchange{2}(:,2))
-plot(lldchange{3}(:,1),lldchange{3}(:,2))
-plot(lldchange{4}(:,1),lldchange{4}(:,2))
+plot(lldchange{3}(:,1),lldchange{3}(:,2))                                    
+plot(lldchange{4}(:,1),lldchange{4}(:,2))                                                                                                                                                                                                                                                                                                                                                                
 plot(lldchange{5}(:,1),lldchange{5}(:,2))
 ylabel('Motor Angular Velocity [rad/s]')
 xlabel('Time (s)')
 title('Compensated System Response - Disturbance Mangitude Change')
 legend('Fd = -196 N','Fd = -275 N','Fd = -353 N','Fd = -432 N')
 % saveas(fig1,'Dchange_Open Loop System Respone.jpg')
+
+fig_l6 = figure;
+hold on
+plot(actsto2{1}(:,1),actsto2{1}(:,2))
+plot(actsto2{2}(:,1),actsto2{2}(:,2))
+plot(actsto2{3}(:,1),actsto2{3}(:,2))
+plot(actsto2{4}(:,1),actsto2{4}(:,2))
+ylabel('Motor Voltage [V]')
+xlabel('Time (s)')
+title('Lead-Lag Controlled Voltage Magnitude - Force Change')
+legend('Fd = -196 N','Fd = -275 N','Fd = -353 N','Fd = -432 N')
+
+overo = (264.7/238.8)-1;
+over = (311.1/334)-1;
+over_pd = pdiff(overo*100,-over*100);
+tso = 5.351;
+ts = 17.40;
+tro = 2.18;
+tr = 1.06;
+esso = 15.26;
+ess = 5.15;
+ts_pd = pdiff(tso,ts);
+tr_pd = pdiff(tro,tr);
+ess_pd = pdiff(esso,ess);
+
+perform = {'Control Goal' 'Original System' 'Compensated' 'Percent Difference';
+            'Overshoot [%]' overo*100   over*100     over_pd  ;
+            'Settling Time (s)'  tso    ts      ts_pd  ;
+            'Rise Time (s)'   tro    tr     tr_pd  ;
+            'Steady State Error (rad/s)'    esso  ess   ess_pd}
+        
+writecell(perform,'perform.xlsx')
+
+
 
