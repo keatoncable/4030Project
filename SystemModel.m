@@ -17,6 +17,10 @@ m_b = 2; %belt mass in kg
 b = 0.01*2; %motor bearing friction
 Je = m_p*r^2 + m_b*r^2+40*10^-6; %effective inertia
 
+mph = [4 6 8 10];
+mps = mph./0.44704;
+ref_ang = mps./r;
+
 %% Plant Model
 t_num = [tau];
 t_den = [1 tau];
@@ -325,8 +329,8 @@ title('Root Locus, with Compensation')
 
 closto = {};
 load_system('closedloop')
-for i = 1:length(volt_vec)
-    volt = volt_vec(i);
+for i = 1:length(ref_ang)
+    ref = ref_ang(i);
     fd = fd_vec(1);
     time = dist_time(1);
     simOut = sim('closedloop');
@@ -336,20 +340,20 @@ end
 
 fig_l1 = figure;
 hold on
-%plot(closto{1}(:,1),closto{1}(:,2))
+plot(closto{1}(:,1),closto{1}(:,2))
 plot(closto{2}(:,1),closto{2}(:,2))
 plot(closto{3}(:,1),closto{3}(:,2))
 plot(closto{4}(:,1),closto{4}(:,2))
 ylabel('Motor Angular Velocity [rad/s]')
 xlabel('Time (s)')
 title('Closed Loop Response')
-legend('V = 12', 'V = 24','V = 48')
+legend('Speed = 4 MPH','Speed = 6 MPH','Speed = 8 MPH','Speed = 10 MPH')
 
 
 cldchange = {};
 load_system('closedloop')
 for i = 1:length(fd_vec)
-    volt = volt_vec(3);
+    ref = ref_ang(3);
     fd = fd_vec(i);
     time = dist_time(1);
     simOut = sim('closedloop');
@@ -374,8 +378,8 @@ legend('Fd = -196 N','Fd = -275 N','Fd = -353 N','Fd = -432 N')
 
 leadlagsto = {};
 load_system('rootlocus')
-for i = 1:length(volt_vec)
-    volt = volt_vec(i);
+for i = 1:length(ref_ang)
+    ref = ref_ang(i);
     fd = fd_vec(1);
     time = dist_time(1);
     simOut = sim('rootlocus');
@@ -385,19 +389,19 @@ end
 
 fig_l3 = figure;
 hold on
-%plot(leadlagsto{1}(:,1),leadlagsto{1}(:,2))
+plot(leadlagsto{1}(:,1),leadlagsto{1}(:,2))
 plot(leadlagsto{2}(:,1),leadlagsto{2}(:,2))
 plot(leadlagsto{3}(:,1),leadlagsto{3}(:,2))
 plot(leadlagsto{4}(:,1),leadlagsto{4}(:,2))
 ylabel('Motor Angular Velocity [rad/s]')
 xlabel('Time (s)')
 title('Lead-Lag Root Locus Closed Loop Response')
-legend('V = 12', 'V = 24','V = 48')
+legend('Speed = 4 MPH','Speed = 6 MPH','Speed = 8 MPH','Speed = 10 MPH')
 
 lldchange = {};
 load_system('rootlocus')
 for i = 1:length(fd_vec)
-    volt = volt_vec(3);
+    ref = ref_ang(3);
     fd = fd_vec(i);
     time = dist_time(1);
     simOut = sim('rootlocus');
