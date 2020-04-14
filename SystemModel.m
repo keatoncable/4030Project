@@ -262,7 +262,7 @@ p = pole(sys);
 re_target = -1.31;
 im_target = 1.16;
 
-a_choice = 10;
+a_choice = 1.5;
 zero = [-a_choice];
 poles = [p' re_target];
 lenz = length(zero);
@@ -272,24 +272,24 @@ tri = [];
 
 for i = 1:lenz
     if zero(i)>re_target
-        dist = abs(re_target-zero(i));
-        tricalc = 180-atand(dist/im_target);
+        dist = abs(re_target)-abs(zero(i));
+        tricalc = 180-atand(im_target/dist);
         tri = [tri tricalc];
     else
-        dist = abs(zero(i)-re_target);
-        tricalc = atand(dist/im_target);
+        dist = abs(zero(i))-abs(re_target);
+        tricalc = atand(im_target/dist);
         tri = [tri tricalc];
     end
 end
 
 for i = 1:lenp-1
     if poles(i)>re_target
-        dist = abs(re_target-poles(i));
-        phicalc = 180-atand(dist/im_target);
+        dist = abs(re_target)-abs(poles(i));
+        phicalc = 180-atand(im_target/dist);
         phi = [phi phicalc];
     else
-        dist = abs(poles(i)-re_target);
-        phicalc = atand(dist/im_target);
+        dist = abs(poles(i))-abs(re_target);
+        phicalc = atand(im_target/dist);
         phi = [phi phicalc];
     end
 end
@@ -297,7 +297,7 @@ end
 syms x
 b_angle = double(solve(sum(tri)-sum(phi)-x==180,x));
 b_mod = mod(b_angle,360);
-b_pole = im_target/tand(b_mod)+abs(re_target);
+b_pole = abs(im_target/tand(b_mod))+abs(re_target);
 
 s = complex(re_target,im_target);
 lead_num = [1 a_choice];
@@ -306,29 +306,31 @@ lead = tf(lead_num,lead_den);
 
 syms k
 gain = double(solve(k*abs(((s+a_choice)/(s+b_pole))*((t)/(a*s^3+b*s^2+c*s+d)))==1,k));
+gain=0.59;
 
-figure
-rlocus(gain*lead*sys)
-title('Root Locus, with Compensation')
 %figure
 %step(gain*lead*sys,40);
 
-c = 0.116708;
-d = 0.01;
+c = 0.174;
+d = 0.026123;
 lag_num = [1 c];
 lag_den = [1 d];
 lag = tf(lag_num,lag_den);
 
 leadlag = gain*lead*lag*sys;
 
+figure
+rlocus(leadlag)
+title('Root Locus, with Compensation')
+
 closto = {};
-load_system('rootlocus')
+load_system('closedloop')
 for i = 1:length(volt_vec)
     volt = volt_vec(i);
     fd = fd_vec(1);
     time = dist_time(1);
-    simOut = sim('rootlocus');
-    y = simOut.get('LeadLagScope');
+    simOut = sim('closedloop');
+    y = simOut.get('ScopeData1');
     closto = [closto y];
 end
 
