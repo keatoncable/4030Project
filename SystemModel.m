@@ -263,10 +263,16 @@ r = c/(3*a);
 x = (q+(q^2+(r-p^2)^3)^(1/2))^(1/3) + (q-(q^2+(r-p^2)^3)^(1/2))^(1/3) + p;
 
 p = pole(sys);
-re_target = -1.31;
-im_target = 1.16;
 
-a_choice = 1.5;
+zeta = .75;
+om_n = 1.75;
+theta = asind(zeta);
+sigma = om_n*sind(theta);
+om_d = om_n*cosd(theta);
+re_target = -sigma;
+im_target = om_d;
+
+a_choice = 2.5;
 zero = [-a_choice];
 poles = [p' re_target];
 lenz = length(zero);
@@ -299,9 +305,9 @@ for i = 1:lenp-1
 end
 
 syms x
-b_angle = double(solve(sum(tri)-sum(phi)-x==180,x));
+b_angle = double(solve(sum(tri)-(sum(phi)+x) == 180,x));
 b_mod = mod(b_angle,360);
-b_pole = abs(im_target/tand(b_mod))+abs(re_target);
+b_pole = im_target/tand(b_mod)+abs(re_target);
 
 s = complex(re_target,im_target);
 lead_num = [1 a_choice];
@@ -309,15 +315,18 @@ lead_den = [1 b_pole];
 lead = tf(lead_num,lead_den);
 
 syms k
-gain = double(solve(k*abs(((s+a_choice)/(s+b_pole))*((t)/(a*s^3+b*s^2+c*s+d)))==1,k));
-gain=0.59;
-%gain = 1.09;
+gain = double(solve(k*abs(((s+a_choice)/(s+b_pole))*(0.3111/(0.0001404*s^3+0.09233*s^2+0.2121*s+0.056)))==1,k));
+%gain=0.59;
+%gain = 1.03;
 
 %figure
 %step(gain*lead*sys,40);
 
+lo = gain*a_choice/b_pole*t/d;
+lo_s = 500;
+ratio = lo_s/lo;
 c = 0.174;
-d = 0.026123;
+d = c/ratio;
 lag_num = [1 c];
 lag_den = [1 d];
 lag = tf(lag_num,lag_den);
@@ -391,7 +400,7 @@ for i = 1:length(ref_ang)
     actsto1 = [actsto1 y2];
 end
 
-fig_l3 = figure;hhhh
+fig_l3 = figure;
 hold on
 plot(leadlagsto{1}(:,1),leadlagsto{1}(:,2))
 plot(leadlagsto{2}(:,1),leadlagsto{2}(:,2))
@@ -452,14 +461,14 @@ title('Lead-Lag Controlled Voltage Magnitude - Force Change')
 legend('Fd = -196 N','Fd = -275 N','Fd = -353 N','Fd = -432 N')
 
 overo = (264.7/238.8)-1;
-over = (311.1/334)-1;
-over_pd = pdiff(overo*100,-over*100);
+over = (263.9/280.8)-1;
+over_pd = pdiff(overo*100,over*100);
 tso = 5.351;
-ts = 17.40;
+ts = 16.80;
 tro = 2.18;
-tr = 1.06;
+tr = 3.598-1.335;
 esso = 15.26;
-ess = 5.15;
+ess = 0.36;
 ts_pd = pdiff(tso,ts);
 tr_pd = pdiff(tro,tr);
 ess_pd = pdiff(esso,ess);
@@ -468,7 +477,7 @@ perform = {'Control Goal' 'Original System' 'Compensated' 'Percent Difference';
             'Overshoot [%]' overo*100   over*100     over_pd  ;
             'Settling Time (s)'  tso    ts      ts_pd  ;
             'Rise Time (s)'   tro    tr     tr_pd  ;
-            'Steady State Error (rad/s)'    esso  ess   ess_pd}
+            'Steady State Error [%]'    esso  ess   ess_pd}
         
 writecell(perform,'perform.xlsx')
 
