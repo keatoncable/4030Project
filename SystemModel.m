@@ -246,7 +246,7 @@ ylim([60 70])
 saveas(fig1,'realsim.jpg')
 
 %% Lead/Lag - Root Locus
-close all
+
 sys = timedelay*plant;
 figure
 rlocus(sys)
@@ -316,11 +316,6 @@ lead = tf(lead_num,lead_den);
 
 syms k
 gain = double(solve(k*abs(((s+a_choice)/(s+b_pole))*(0.3111/(0.0001404*s^3+0.09233*s^2+0.2121*s+0.056)))==1,k));
-%gain=0.59;
-%gain = 1.03;
-
-%figure
-%step(gain*lead*sys,40);
 
 lo = gain*a_choice/b_pole*t/d;
 lo_s = 500;
